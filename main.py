@@ -20,6 +20,19 @@ gaussian_blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
 # Median blur
 median = cv2.medianBlur(gray_image, 3)
 
+##Canny threshold( gradient strength brightness 
+#
+# 50 ≤ gradient < 150 → weak edgechagessbetween pixels)
+low_edges_without_blur = cv2.Canny(gray_image, 50, 150)
+Low_edges_with_blur = cv2.Canny(gaussian_blur, 50, 150)
+
+# Gradient ≥ 150 → strong edge
+high_edges_50_150 = cv2.Canny(gray_image, 100, 200)
+high_edges_100_200 = cv2.Canny(gaussian_blur, 100, 200)
+
+
+
+
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
 print("Size:", image.size)
@@ -30,11 +43,14 @@ print("Grayscale udim:", gray_image.ndim)
 # cv2.imshow("Original Image", image)
 # cv2.imshow("Resized Image", resized_image)
 # cv2.imshow("Croped Image", cropped_image)
-cv2.imshow("Grayscale Image",gray_image)
-cv2.imshow("mean_blur Image",mean_blur)
-cv2.imshow("gaussian Image",gaussian_blur)
-cv2.imshow("median Image",median)
-
+# cv2.imshow("Grayscale Image",gray_image)
+# cv2.imshow("mean_blur Image",mean_blur)
+# cv2.imshow("gaussian Image",gaussian_blur)
+# cv2.imshow("median Image",median)
+cv2.imshow("edges_without_blur",low_edges_without_blur)
+cv2.imshow("edges_with_blur",Low_edges_with_blur)
+cv2.imshow("high_edges_50_150",high_edges_50_150)
+cv2.imshow("high_edges_100_200",high_edges_100_200)
 
 saved = cv2.imwrite("output/copy.jpg", resized_image)
 # cropped_saved = cv2.imwrite("output/cropped.jpg", cropped_image)
@@ -42,6 +58,12 @@ saved = cv2.imwrite("output/copy.jpg", resized_image)
 mean_saved = cv2.imwrite("output/mean_blur.jpg", mean_blur)
 gaussian_saved = cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
 median_saved = cv2.imwrite("output/median_blur.jpg", median)
+
+# without_blur_saved = cv2.imwrite("output/edges_without_blur.jpg",low_edges_without_blur)
+with_blur_saved = cv2.imwrite("output/edges_with_blur.jpg",Low_edges_with_blur)
+
+without_blur_saved = cv2.imwrite("output/high_edges_50_150.jpg",high_edges_50_150)
+with_blur_saved = cv2.imwrite("output/high_edges_100_200.jpg",high_edges_100_200)
 
 
 # cv2.imwrite("output/mean_blur.jpg", mean_blur)
