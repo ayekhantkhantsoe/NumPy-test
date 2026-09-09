@@ -2,19 +2,24 @@ import cv2
 import numpy as np
 
 image = cv2.imread("image/1.jpg")
-resized_image = cv2.resize(image, (300, 300))
 
 if image is None:
     print("Image could not be loaded.")
     exit()
 
+resized_image = cv2.resize(image, (300, 300))
+cropped_image = resized_image[50:250, 50:250]
+
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
 print("Size:", image.size)
 print("Dimensions:", image.ndim)
-cv2.imshow("Original Image", image)
+
+# cv2.imshow("Original Image", image)
 cv2.imshow("Resized Image", resized_image)
-saved = cv2.imwrite("output/copy.jpg", image)
+cv2.imshow("Croped Image", cropped_image)
+saved = cv2.imwrite("output/copy.jpg", resized_image)
+cropped_saved = cv2.imwrite("output/cropped.jpg", cropped_image)
 print("Image saved:", saved)
 
 cv2.waitKey(0)
