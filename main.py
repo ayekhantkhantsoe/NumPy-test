@@ -9,17 +9,45 @@ if image is None:
 
 resized_image = cv2.resize(image, (300, 300))
 cropped_image = resized_image[50:250, 50:250]
+gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+
+#3 * 3 blur
+mean_blur = cv2.blur(gray_image, (3, 3))
+
+# 5 * 5 Gaussian blur
+gaussian_blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
+
+# Median blur
+median = cv2.medianBlur(gray_image, 3)
 
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
 print("Size:", image.size)
 print("Dimensions:", image.ndim)
+print("Grayscale shape:", gray_image.shape)
+print("Grayscale udim:", gray_image.ndim)
 
 # cv2.imshow("Original Image", image)
-cv2.imshow("Resized Image", resized_image)
-cv2.imshow("Croped Image", cropped_image)
+# cv2.imshow("Resized Image", resized_image)
+# cv2.imshow("Croped Image", cropped_image)
+cv2.imshow("Grayscale Image",gray_image)
+cv2.imshow("mean_blur Image",mean_blur)
+cv2.imshow("gaussian Image",gaussian_blur)
+cv2.imshow("median Image",median)
+
+
 saved = cv2.imwrite("output/copy.jpg", resized_image)
-cropped_saved = cv2.imwrite("output/cropped.jpg", cropped_image)
+# cropped_saved = cv2.imwrite("output/cropped.jpg", cropped_image)
+# grayed_saved = cv2.imwrite("output/greyed.jpg", gray_image)
+mean_saved = cv2.imwrite("output/mean_blur.jpg", mean_blur)
+gaussian_saved = cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
+median_saved = cv2.imwrite("output/median_blur.jpg", median)
+
+
+# cv2.imwrite("output/mean_blur.jpg", mean_blur)
+# cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
+# cv2.imwrite("output/gaussian_blur.jpg", median)
+
 print("Image saved:", saved)
 
 cv2.waitKey(0)
