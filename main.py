@@ -11,6 +11,45 @@ resized_image = cv2.resize(image, (300, 300))
 cropped_image = resized_image[50:250, 50:250]
 gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
 
+####? Coordinates for rectangle ######
+#?
+#1. Create a copy of the resized image
+copy_image = resized_image.copy()
+
+height, width = resized_image.shape[:2]
+
+#2. Top-left coordinate — (x1, y1)
+top_left = (width // 4, height // 4)
+
+#3. Bottom-right coordinate — (x2, y2)
+bottom_right = (3 * width // 4, 3 * height // 4)
+
+#4. Red rectangle
+cv2.rectangle(
+    copy_image,
+    top_left,
+    bottom_right,
+    (0, 0, 255),  # BGR color (red)
+    1            # 1 pixels
+)
+
+#5 
+x1, y1 = top_left
+
+cv2.putText(
+    copy_image,                 # Image 
+    "person",                  # TEXT wanted to display
+    (x1, max(20, y1 - 10)),      # PLACE text above the rectangle
+    cv2.FONT_HERSHEY_SIMPLEX,    # Font
+    0.6,                        # Text size
+    (0, 255, 0),                # Text color (BGR)
+    2,                          # Text thickness
+    cv2.LINE_AA                
+)
+########?
+
+####? Coordinates for rectangle
+
 #3 * 3 blur
 mean_blur = cv2.blur(gray_image, (3, 3))
 
@@ -20,7 +59,9 @@ gaussian_blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
 # Median blur
 median = cv2.medianBlur(gray_image, 3)
 
-##Canny threshold( gradient strength brightness 
+###?
+
+#####? Canny threshold( gradient strength brightness#######
 #
 # 50 ≤ gradient < 150 → weak edgechagessbetween pixels)
 low_edges_without_blur = cv2.Canny(gray_image, 50, 150)
@@ -31,8 +72,6 @@ high_edges_50_150 = cv2.Canny(gray_image, 100, 200)
 high_edges_100_200 = cv2.Canny(gaussian_blur, 100, 200)
 
 
-
-
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
 print("Size:", image.size)
@@ -40,6 +79,8 @@ print("Dimensions:", image.ndim)
 print("Grayscale shape:", gray_image.shape)
 print("Grayscale udim:", gray_image.ndim)
 
+###* Important: Display the images in separate windows########
+#
 # cv2.imshow("Original Image", image)
 # cv2.imshow("Resized Image", resized_image)
 # cv2.imshow("Croped Image", cropped_image)
@@ -47,25 +88,26 @@ print("Grayscale udim:", gray_image.ndim)
 # cv2.imshow("mean_blur Image",mean_blur)
 # cv2.imshow("gaussian Image",gaussian_blur)
 # cv2.imshow("median Image",median)
-cv2.imshow("edges_without_blur",low_edges_without_blur)
-cv2.imshow("edges_with_blur",Low_edges_with_blur)
-cv2.imshow("high_edges_50_150",high_edges_50_150)
-cv2.imshow("high_edges_100_200",high_edges_100_200)
+# cv2.imshow("edges_without_blur",low_edges_without_blur)
+# cv2.imshow("edges_with_blur",Low_edges_with_blur)
+# cv2.imshow("high_edges_50_150",high_edges_50_150)
+# cv2.imshow("high_edges_100_200",high_edges_100_200)
+cv2.imshow("Rectangle", copy_image)
 
+
+######* save processed images to the output folder#######
+#
 saved = cv2.imwrite("output/copy.jpg", resized_image)
-# cropped_saved = cv2.imwrite("output/cropped.jpg", cropped_image)
-# grayed_saved = cv2.imwrite("output/greyed.jpg", gray_image)
-mean_saved = cv2.imwrite("output/mean_blur.jpg", mean_blur)
-gaussian_saved = cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
-median_saved = cv2.imwrite("output/median_blur.jpg", median)
-
-# without_blur_saved = cv2.imwrite("output/edges_without_blur.jpg",low_edges_without_blur)
-with_blur_saved = cv2.imwrite("output/edges_with_blur.jpg",Low_edges_with_blur)
-
-without_blur_saved = cv2.imwrite("output/high_edges_50_150.jpg",high_edges_50_150)
-with_blur_saved = cv2.imwrite("output/high_edges_100_200.jpg",high_edges_100_200)
-
-
+cv2.imwrite("output/rectangle.jpg", copy_image)
+# cv2.imwrite("output/cropped.jpg", cropped_image)
+# cv2.imwrite("output/greyed.jpg", gray_image)
+# cv2.imwrite("output/mean_blur.jpg", mean_blur)
+# cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
+# cv2.imwrite("output/median_blur.jpg", median)
+# cv2.imwrite("output/edges_without_blur.jpg",low_edges_without_blur)
+# cv2.imwrite("output/edges_with_blur.jpg",Low_edges_with_blur)
+# cv2.imwrite("output/high_edges_50_150.jpg",high_edges_50_150)
+# cv2.imwrite("output/high_edges_100_200.jpg",high_edges_100_200)
 # cv2.imwrite("output/mean_blur.jpg", mean_blur)
 # cv2.imwrite("output/gaussian_blur.jpg", gaussian_blur)
 # cv2.imwrite("output/gaussian_blur.jpg", median)
@@ -75,6 +117,8 @@ print("Image saved:", saved)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+
+#! testing numpy array
 # array = [1, 2, 3]
 # result = []
 
