@@ -20,6 +20,11 @@ masked_result = cv2.bitwise_and(
     resized_image,
     mask=mask,
 )
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+dilated_mask = cv2.dilate(masked_result, kernel, iterations=1)
+morphology_result = cv2.morphologyEx(masked_result, cv2.MORPH_OPEN, kernel)
+Erosion = cv2.erode(masked_result, kernel, iterations=1)
+Closing  = cv2.morphologyEx(masked_result, cv2.MORPH_CLOSE, kernel)
 ####? Coordinates for rectangle ######
 #?
 #1. Create a copy of the resized image
@@ -102,8 +107,13 @@ print("Grayscale udim:", gray_image.ndim)
 # cv2.imshow("high_edges_50_150",high_edges_50_150)
 # cv2.imshow("high_edges_100_200",high_edges_100_200)
 # cv2.imshow("Rectangle", copy_image)
-cv2.imshow("HSV Image", hsv_image)
-cv2.imshow("Mask Image", mask)
+# cv2.imshow("HSV Image", hsv_image)
+# cv2.imshow("Mask Image", mask)
+cv2.imshow("Dilated Mask", dilated_mask)
+cv2.imshow("Morphology Result", morphology_result)
+cv2.imshow("Erosion", Erosion)
+cv2.imshow("Closing", Closing)
+cv2.imshow("Opening", Opening)
 cv2.imshow("Masked Result", masked_result)
 ######* save processed images to the output folder#######
 #
