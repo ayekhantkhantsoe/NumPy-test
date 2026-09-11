@@ -20,11 +20,7 @@ masked_result = cv2.bitwise_and(
     resized_image,
     mask=mask,
 )
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-dilated_mask = cv2.dilate(masked_result, kernel, iterations=1)
-morphology_result = cv2.morphologyEx(masked_result, cv2.MORPH_OPEN, kernel)
-Erosion = cv2.erode(masked_result, kernel, iterations=1)
-Closing  = cv2.morphologyEx(masked_result, cv2.MORPH_CLOSE, kernel)
+
 ####? Coordinates for rectangle ######
 #?
 #1. Create a copy of the resized image
@@ -74,6 +70,16 @@ gaussian_blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
 median = cv2.medianBlur(gray_image, 3)
 
 ###?
+###
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+dilated_mask = cv2.dilate(mask, kernel, iterations=1)
+morphology_result = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+Erosion = cv2.erode(mask, kernel, iterations=1)
+Closing  = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+contours, hierarchy = cv2.findContours(Closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+cv2.drawContours(copy_image, contours,-1, (0, 255, 0), 2)
+contour_areas = [cv2.contourArea(contour) for contour in contours]
+#####
 
 #####? Canny threshold( gradient strength brightness#######
 #
@@ -92,6 +98,9 @@ print("Size:", image.size)
 print("Dimensions:", image.ndim)
 print("Grayscale shape:", gray_image.shape)
 print("Grayscale udim:", gray_image.ndim)
+print("Contour areas:", contour_areas)
+print("mask:", mask.shape, mask.dtype)
+print("closing:", Closing.shape, Closing.dtype)
 
 ###* Important: Display the images in separate windows########
 #
@@ -109,12 +118,14 @@ print("Grayscale udim:", gray_image.ndim)
 # cv2.imshow("Rectangle", copy_image)
 # cv2.imshow("HSV Image", hsv_image)
 # cv2.imshow("Mask Image", mask)
-cv2.imshow("Dilated Mask", dilated_mask)
-cv2.imshow("Morphology Result", morphology_result)
-cv2.imshow("Erosion", Erosion)
+# cv2.imshow("Dilated Mask", dilated_mask)
+# cv2.imshow("Morphology Result", morphology_result)
+# cv2.imshow("Erosion", Erosion)
 cv2.imshow("Closing", Closing)
-cv2.imshow("Opening", Opening)
-cv2.imshow("Masked Result", masked_result)
+# cv2.imshow("Opening", Opening)
+# cv2.imshow("Masked Result", masked_result)
+# cv2.imshow("Contour Areas", contour_areas)
+cv2.imshow("Contours", copy_image)
 ######* save processed images to the output folder#######
 #
 saved = cv2.imwrite("output/copy.jpg", resized_image)
