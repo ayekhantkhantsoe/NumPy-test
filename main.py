@@ -83,9 +83,16 @@ minimum_area = 100
 
 for contour in contours:
     area = cv2.contourArea(contour)
+    perimeter = cv2.arcLength(contour, True)
+    moments = cv2.moments(contour)
+
+    if moments["m00"] != 0:
+        center_x = int(moments["m10"] / moments["m00"])
+        center_y = int(moments["m01"] / moments["m00"])
 
     if area < minimum_area: #21780 < 100
         continue
+
 
     x, y, width, height = cv2.boundingRect(contour)
 
@@ -94,7 +101,9 @@ for contour in contours:
         "x:", x,
         "y:", y,
         "width:", width,
-        "height:", height
+        "height:", height,
+        "Perimeter:", perimeter,
+        "Center:", (center_x, center_y)
     )
 
     cv2.rectangle(
@@ -104,6 +113,17 @@ for contour in contours:
         (0, 255, 0),
         2
     )
+
+    cv2.circle(
+        copy_image,
+        (center_x, center_y),
+        5,
+        (255, 0, 0),
+        -1
+    )
+
+
+
 #####
 
 #####? Canny threshold( gradient strength brightness#######
