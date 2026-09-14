@@ -21,6 +21,7 @@ masked_result = cv2.bitwise_and(
     mask=mask,
 )
 
+
 ####? Coordinates for rectangle ######
 #?
 #1. Create a copy of the resized image
@@ -46,16 +47,7 @@ bottom_right = (3 * width // 4, 3 * height // 4)
 #5 
 # x1, y1 = top_left
 
-# cv2.putText(
-#     copy_image,                 # Image 
-#     "person",                  # TEXT wanted to display
-#     (x1, max(20, y1 - 10)),      # PLACE text above the rectangle
-#     cv2.FONT_HERSHEY_SIMPLEX,    # Font
-#     0.6,                        # Text size
-#     (0, 255, 0),                # Text color (BGR)
-#     2,                          # Text thickness
-#     cv2.LINE_AA                
-# )
+
 ########?
 
 ####? Coordinates for rectangle
@@ -122,9 +114,32 @@ for contour in contours:
         -1
     )
 
+aspect_ratio = width / height
+print("Aspect ratio:", aspect_ratio)
 
+epsilon = 0.02 * perimeter
+approx = cv2.approxPolyDP(contour, epsilon, True)
+corners = len(approx)
+if corners == 3:
+    shape_name = "Triangle"
+elif corners == 4:
+    shape_name = "Rectangle"
+elif corners > 8:
+    shape_name = "Circle-like"
+else:
+    shape_name = "Unknown"
 
 #####
+cv2.putText(
+    copy_image,                 # Image 
+    shape_name,                  # TEXT wanted to display
+    (x, max(20, y - 10)),      # PLACE text above the rectangle
+    cv2.FONT_HERSHEY_SIMPLEX,    # Font
+    0.6,                        # Text size
+    (0, 255, 0),                # Text color (BGR)
+    2,                          # Text thickness
+    cv2.LINE_AA                
+)
 
 #####? Canny threshold( gradient strength brightness#######
 #
