@@ -35,27 +35,27 @@ top_left = (width // 4, height // 4)
 bottom_right = (3 * width // 4, 3 * height // 4)
 
 #4. Red rectangle
-cv2.rectangle(
-    copy_image,
-    top_left,
-    bottom_right,
-    (0, 0, 255),  # BGR color (red)
-    1            # 1 pixels
-)
+# cv2.rectangle(
+#     copy_image,
+#     top_left,
+#     bottom_right,
+#     (0, 0, 255),  # BGR color (red)
+#     1            # 1 pixels
+# )
 
 #5 
-x1, y1 = top_left
+# x1, y1 = top_left
 
-cv2.putText(
-    copy_image,                 # Image 
-    "person",                  # TEXT wanted to display
-    (x1, max(20, y1 - 10)),      # PLACE text above the rectangle
-    cv2.FONT_HERSHEY_SIMPLEX,    # Font
-    0.6,                        # Text size
-    (0, 255, 0),                # Text color (BGR)
-    2,                          # Text thickness
-    cv2.LINE_AA                
-)
+# cv2.putText(
+#     copy_image,                 # Image 
+#     "person",                  # TEXT wanted to display
+#     (x1, max(20, y1 - 10)),      # PLACE text above the rectangle
+#     cv2.FONT_HERSHEY_SIMPLEX,    # Font
+#     0.6,                        # Text size
+#     (0, 255, 0),                # Text color (BGR)
+#     2,                          # Text thickness
+#     cv2.LINE_AA                
+# )
 ########?
 
 ####? Coordinates for rectangle
@@ -79,6 +79,31 @@ Closing  = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 contours, hierarchy = cv2.findContours(Closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 cv2.drawContours(copy_image, contours,-1, (0, 255, 0), 2)
 contour_areas = [cv2.contourArea(contour) for contour in contours]
+minimum_area = 100  
+
+for contour in contours:
+    area = cv2.contourArea(contour)
+
+    if area < minimum_area: #21780 < 100
+        continue
+
+    x, y, width, height = cv2.boundingRect(contour)
+
+    print(
+        "Area:", area,
+        "x:", x,
+        "y:", y,
+        "width:", width,
+        "height:", height
+    )
+
+    cv2.rectangle(
+        copy_image,
+        (x, y),
+        (x + width, y + height),
+        (0, 255, 0),
+        2
+    )
 #####
 
 #####? Canny threshold( gradient strength brightness#######
@@ -117,7 +142,7 @@ print("closing:", Closing.shape, Closing.dtype)
 # cv2.imshow("high_edges_100_200",high_edges_100_200)
 # cv2.imshow("Rectangle", copy_image)
 # cv2.imshow("HSV Image", hsv_image)
-# cv2.imshow("Mask Image", mask)
+cv2.imshow("Mask Image", mask)
 # cv2.imshow("Dilated Mask", dilated_mask)
 # cv2.imshow("Morphology Result", morphology_result)
 # cv2.imshow("Erosion", Erosion)
