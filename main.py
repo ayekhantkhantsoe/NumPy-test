@@ -55,12 +55,15 @@ def is_heart_contour(contour: np.ndarray) -> bool:
     # The lowest 15% should narrow toward the center, unlike a U-shaped object.
     points = contour[:, 0, :]
     bottom_points = points[points[:, 1] >= y + 0.85 * (height - 1)]
+
+    if len(bottom_points) == 0:
+        return False
+
     bottom_width = np.ptp(bottom_points[:, 0])
     bottom_center = (float(bottom_points[:, 0].min()) +
                      float(bottom_points[:, 0].max())) / 2
     return bool(bottom_width < 0.45 * width and
                 0.35 <= (bottom_center - x) / width <= 0.65)
-
 
 image = cv2.imread("image/1.jpg")
 
@@ -130,7 +133,6 @@ morphology_result = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 Erosion = cv2.erode(mask, kernel, iterations=1)
 Closing  = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 contours, hierarchy = cv2.findContours(Closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-cv2.drawContours(copy_image, contours,-1, (0, 255, 0), 2)
 contour_areas = [cv2.contourArea(contour) for contour in contours]
 minimum_area = 100  
 
@@ -138,6 +140,8 @@ for contour in contours:
     area = cv2.contourArea(contour)
     if area < minimum_area: #21780 < 100
         continue
+
+    cv2.drawContours(copy_image, [contour], -1, (0, 255, 0), 2)
 
     perimeter = cv2.arcLength(contour, True)
     moments = cv2.moments(contour)
