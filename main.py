@@ -1,6 +1,67 @@
 import cv2
 import numpy as np
 
+
+def is_heart_contour(contour: np.ndarray) -> bool:
+
+    if len(contour) < 7 or cv2.contourArea(contour) <= 0:
+        return False
+
+    x, y, width, height = cv2.boundingRect(contour)
+    aspect_ratio = width / height
+    if not 0.65 <= aspect_ratio <= 1.4:
+        return False  # Reject shapes that are unusually tall or wide.
+
+    # Simplification removes tiny pixel steps that could look like extra notches.
+    perimeter = cv2.arcLength(contour, True)
+    outline = cv2.approxPolyDP(contour, 0.01 * perimeter, True)
+    if len(outline) < 7:
+        return False
+
+    # A convex hull is like a rubber band stretched around the shape.
+    # A convexity defect measures an inward dip between that band and the outline.
+    hull_indices = cv2.convexHull(outline, returnPoints=False)
+    defects = cv2.convexityDefects(outline, hull_indices)
+    if defects is None:
+        return False  # A circle or rectangle has no meaningful inward notch.
+
+    # reshape also handles OpenCV versions that return (N, 4) instead of (N, 1, 4).
+    deep_defects = [defect for defect in defects.reshape(-1, 4)
+                    if defect[3] / 256.0 >= 0.05 * height]
+    if len(deep_defects) != 1:
+        return False  # Stars, for example, have several deep inward dips.
+
+    start, end, farthest, depth = deep_defects[0]
+    shoulders = sorted((outline[start, 0], outline[end, 0]), key=lambda point: point[0])
+    left, right = shoulders
+    notch = outline[farthest, 0]
+
+    # Normalize coordinates: 0 means left/top and 1 means right/bottom.
+    notch_x = (notch[0] - x) / width
+    notch_y = (notch[1] - y) / height
+    if not (0.30 <= notch_x <= 0.70 and 0.08 <= notch_y <= 0.50):
+        return False
+    if not 0.06 <= depth / 256.0 / height <= 0.35:
+        return False
+    if max(left[1], right[1]) > y + 0.35 * height:
+        return False  # The shoulders must both be near the top.
+    if abs(int(left[1]) - int(right[1])) > 0.20 * height:
+        return False  # The two shoulders should be at roughly the same height.
+    if not (left[0] + 0.10 * width < notch[0] < right[0] - 0.10 * width):
+        return False  # The notch must sit between two separate shoulders.
+    if notch[1] < max(left[1], right[1]) + 0.04 * height:
+        return False
+
+    # The lowest 15% should narrow toward the center, unlike a U-shaped object.
+    points = contour[:, 0, :]
+    bottom_points = points[points[:, 1] >= y + 0.85 * (height - 1)]
+    bottom_width = np.ptp(bottom_points[:, 0])
+    bottom_center = (float(bottom_points[:, 0].min()) +
+                     float(bottom_points[:, 0].max())) / 2
+    return bool(bottom_width < 0.45 * width and
+                0.35 <= (bottom_center - x) / width <= 0.65)
+
+
 image = cv2.imread("image/1.jpg")
 
 if image is None:
@@ -75,16 +136,15 @@ minimum_area = 100
 
 for contour in contours:
     area = cv2.contourArea(contour)
-    perimeter = cv2.arcLength(contour, True)
-    moments = cv2.moments(contour)
-
-    if moments["m00"] != 0:
-        center_x = int(moments["m10"] / moments["m00"])
-        center_y = int(moments["m01"] / moments["m00"])
-
     if area < minimum_area: #21780 < 100
         continue
 
+    perimeter = cv2.arcLength(contour, True)
+    moments = cv2.moments(contour)
+    if moments["m00"] == 0:
+        continue  # A zero-area contour has no usable centroid.
+    center_x = int(moments["m10"] / moments["m00"])
+    center_y = int(moments["m01"] / moments["m00"])
 
     x, y, width, height = cv2.boundingRect(contour)
 
@@ -114,32 +174,35 @@ for contour in contours:
         -1
     )
 
-aspect_ratio = width / height
-print("Aspect ratio:", aspect_ratio)
+    aspect_ratio = width / height
+    print("Aspect ratio:", aspect_ratio)
 
-epsilon = 0.02 * perimeter
-approx = cv2.approxPolyDP(contour, epsilon, True)
-corners = len(approx)
-if corners == 3:
-    shape_name = "Triangle"
-elif corners == 4:
-    shape_name = "Rectangle"
-elif corners > 8:
-    shape_name = "Circle-like"
-else:
-    shape_name = "Unknown"
+    epsilon = 0.02 * perimeter
+    approx = cv2.approxPolyDP(contour, epsilon, True)
+    corners = len(approx)
+    # Check heart geometry first: a heart cannot be identified by corner count alone.
+    if is_heart_contour(contour):
+        shape_name = "Heart"
+    elif corners == 3:
+        shape_name = "Triangle"
+    elif corners == 4:
+        shape_name = "Rectangle"
+    elif corners > 8:
+        shape_name = "Circle-like"
+    else:
+        shape_name = "Unknown"
 
-#####
-cv2.putText(
-    copy_image,                 # Image 
-    shape_name,                  # TEXT wanted to display
-    (x, max(20, y - 10)),      # PLACE text above the rectangle
-    cv2.FONT_HERSHEY_SIMPLEX,    # Font
-    0.6,                        # Text size
-    (0, 255, 0),                # Text color (BGR)
-    2,                          # Text thickness
-    cv2.LINE_AA                
-)
+    # Keep labeling inside the loop so every accepted contour gets its own name.
+    cv2.putText(
+        copy_image,                 # Image
+        shape_name,                 # TEXT wanted to display
+        (x, max(20, y - 10)),        # PLACE text above the rectangle
+        cv2.FONT_HERSHEY_SIMPLEX,    # Font
+        0.6,                        # Text size
+        (0, 255, 0),                # Text color (BGR)
+        2,                          # Text thickness
+        cv2.LINE_AA
+    )
 
 #####? Canny threshold( gradient strength brightness#######
 #
