@@ -279,20 +279,21 @@ if not success:
     camera.release()
     exit()
 
+try:
+    while True:
+        success, frame = camera.read()
+        if not success:
+            print("Failed to capture frame from camera.")
+            break
 
-while True:
-    success, frame = camera.read()
-    if not success:
-        print("Failed to capture frame from camera.")
-        break
+        processed_frame = process_frame(frame)
+        cv2.imshow("Webcam Detection", processed_frame)
 
-    processed_frame = process_frame(frame)
-    cv2.imshow("Webcam Detection", processed_frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-camera.release()
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+finally:
+    camera.release()
+    cv2.destroyAllWindows()
 
 
 
