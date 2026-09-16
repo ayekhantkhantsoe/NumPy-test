@@ -218,6 +218,47 @@ Low_edges_with_blur = cv2.Canny(gaussian_blur, 50, 150)
 high_edges_50_150 = cv2.Canny(gray_image, 100, 200)
 high_edges_100_200 = cv2.Canny(gaussian_blur, 100, 200)
 
+#@@ image processing on webcam frames can be added here, similar to the static image processing above.
+##
+#
+def process_frame(frame):
+    resized_frame = cv2.resize(frame, (300, 300))
+
+    return process_frame
+
+###? Webcam/video processing
+camera = cv2.VideoCapture(0)
+if not camera.isOpened():
+    print("Camera could not be opened.")
+    exit()
+success, frame = camera.read()
+if not success:
+    print("Failed to capture frame from camera.")
+    camera.release()
+    exit()
+
+
+while True:
+    success, frame = camera.read()
+    if not success:
+        print("Failed to capture frame from camera.")
+        break
+
+    processed_frame = process_frame(frame)
+    cv2.imshow("Webcam Detection", processed_frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+camera.release()
+
+
+
+
+
+##?
+
+
+
 
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
