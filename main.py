@@ -224,7 +224,7 @@ high_edges_100_200 = cv2.Canny(gaussian_blur, 100, 200)
 def process_frame(frame):
     resized_frame = cv2.resize(frame, (300, 300))
 
-    return process_frame
+    return resized_frame
 
 ###? Webcam/video processing
 camera = cv2.VideoCapture(0)
@@ -285,15 +285,15 @@ print("closing:", Closing.shape, Closing.dtype)
 # cv2.imshow("high_edges_100_200",high_edges_100_200)
 # cv2.imshow("Rectangle", copy_image)
 # cv2.imshow("HSV Image", hsv_image)
-cv2.imshow("Mask Image", mask)
+# cv2.imshow("Mask Image", mask)
 # cv2.imshow("Dilated Mask", dilated_mask)
 # cv2.imshow("Morphology Result", morphology_result)
 # cv2.imshow("Erosion", Erosion)
-cv2.imshow("Closing", Closing)
+# cv2.imshow("Closing", Closing)
 # cv2.imshow("Opening", Opening)
 # cv2.imshow("Masked Result", masked_result)
 # cv2.imshow("Contour Areas", contour_areas)
-cv2.imshow("Contours", copy_image)
+# cv2.imshow("Contours", copy_image)
 ######* save processed images to the output folder#######
 #
 saved = cv2.imwrite("output/copy.jpg", resized_image)
