@@ -20,8 +20,15 @@ def is_heart_contour(contour: np.ndarray) -> bool:
 
     # A convex hull is like a rubber band stretched around the shape.
     # A convexity defect measures an inward dip between that band and the outline.
-    hull_indices = cv2.convexHull(outline, returnPoints=False)
-    defects = cv2.convexityDefects(outline, hull_indices)
+    # Use the original contour: approxPolyDP can self-intersect, which OpenCV 5 rejects.
+    hull_indices = cv2.convexHull(contour, returnPoints=False)
+    if hull_indices is None or len(hull_indices) < 3:
+        return False
+    hull_indices = np.unique(hull_indices).astype(np.int32).reshape(-1, 1)
+    try:
+        defects = cv2.convexityDefects(contour, hull_indices)
+    except cv2.error:
+        return False  # Noisy webcam contours can still self-intersect.
     if defects is None:
         return False  # A circle or rectangle has no meaningful inward notch.
 
@@ -32,9 +39,9 @@ def is_heart_contour(contour: np.ndarray) -> bool:
         return False  # Stars, for example, have several deep inward dips.
 
     start, end, farthest, depth = deep_defects[0]
-    shoulders = sorted((outline[start, 0], outline[end, 0]), key=lambda point: point[0])
+    shoulders = sorted((contour[start, 0], contour[end, 0]), key=lambda point: point[0])
     left, right = shoulders
-    notch = outline[farthest, 0]
+    notch = contour[farthest, 0]
 
     # Normalize coordinates: 0 means left/top and 1 means right/bottom.
     notch_x = (notch[0] - x) / width
@@ -294,10 +301,6 @@ try:
 finally:
     camera.release()
     cv2.destroyAllWindows()
-
-
-
-
 
 ##?
 
