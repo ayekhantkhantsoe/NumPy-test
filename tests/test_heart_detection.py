@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 
 
-MAIN_PATH = Path(__file__).resolve().parents[1] / "main.py"
+MAIN_PATH = Path(__file__).resolve().parents[1] / "static_image_lesson.py"
 
 
 def heart_points(size: int = 180, offset: tuple[int, int] = (60, 50)) -> np.ndarray:
