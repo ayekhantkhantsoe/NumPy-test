@@ -304,9 +304,6 @@ finally:
 
 ##?
 
-
-
-
 print("Shape:", image.shape)
 print("Data type:", image.dtype)
 print("Size:", image.size)
